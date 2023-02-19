@@ -1,44 +1,46 @@
 import random
 import concurrent.futures
-from enum import Enum
 from time import sleep
 from .api import Hue
-from .config import ENV, GROUPS, ITERS
+from .config import ENV
 from .threaded_light_object import ThreadedLightObject
 
 HUE_LIMIT: int = 65535
 MAX_BRIGHTNESS: int = 254
 MAX_SATURATION: int = 254
 
+
 def main() -> None:
     """
     main run function
     """
     hue = Hue(ENV["bridge_ip_address"], ENV["username"])
-    FUNCTIONS: dict = {
-        1: flash_colors(GROUPS["basement"], hue),
-        2: flash_random_colors([
-            {"light_id": "7", "hue": random.randint},
-            {"light_id": "9", "hue": random.randint},
-            {"light_id": "11", "hue": random.randint},
-            {"light_id": "6", "hue": random.randint},
-            {"light_id": "2", "hue": random.randint},
-            {"light_id": "10", "hue": random.randint},
-            {"light_id": "5", "hue": random.randint},
-            {"light_id": "4", "hue": random.randint},
-        ]),
-        3: around_the_world(["7", "9", "11", "6", "2", "10", "5", "4"], hue)
-    }
+    CHOICES: list[int] = [
+        1,
+        2,
+        3,
+    ]
     while True:
-        choice = random.choice(list(FUNCTIONS.items()))
-        FUNCTIONS[choice]
+        choice = random.choice(CHOICES)
+        if choice == 1:
+            print(f"Flash Colors now executing {ENV['iters']} times ...")
+            flash_colors(ENV["function_config"]["flash_colors"]["basement"], hue)
+        elif choice == 2:
+            print(f"Flash Random Colors now executing {ENV['iters']} times ...")
+            flash_random_colors(ENV["function_config"]["flash_random_colors"], hue)
+        elif choice == 3:
+            print(f"Around the World now executing {ENV['iters']} times ...")
+            around_the_world(ENV["function_config"]["around_the_world"], hue)
+        else:
+            print("Choice invalid.")
+            break
 
 
 def flash_colors(group_id: str, client: Hue) -> None:
     """
     This will flash colors indefinitely
     """
-    for _ in enumerate(range(ITERS)):
+    for _ in enumerate(range(ENV["iters"])):
         hue: int = random.randint(0, HUE_LIMIT)
         client.set_group_state(
             group_id=group_id,
@@ -60,7 +62,7 @@ def around_the_world(lights: list[str], client: Hue) -> None:
     This will turn on light and turn them off sequentially,
     provided an ordered list of light IDs
     """
-    for _ in enumerate(range(ITERS)):
+    for _ in enumerate(range(ENV["iters"])):
         hue: int = random.randint(0, HUE_LIMIT)
         for light in lights:
             client.set_light_state(
@@ -84,7 +86,7 @@ def flash_random_colors(lights: list[ThreadedLightObject], client: Hue) -> None:
     """
     This will turn on a list of lights with different colors
     """
-    for _ in enumerate(range(ITERS)):
+    for _ in enumerate(range(ENV["iters"])):
         with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
             future_to_light = {
                 executor.submit(

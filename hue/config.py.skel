@@ -1,6 +1,10 @@
 ENV: dict = {
     "bridge_ip_address": "",
     "username": "",
+    "function_config": {
+        "flash_random_colors": [],
+        "around_the_world": [],
+        "flash_colors": {}
+    },
+    "iters": 0
 }
-GROUPS: dict = {"": ""}
-ITERS: int = 0
