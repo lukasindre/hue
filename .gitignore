@@ -1,5 +1,5 @@
 config.py
-hue/__pycache__*
+hue/__pycache__/*
 .DS_Store
 .huskyrc.json
 out
