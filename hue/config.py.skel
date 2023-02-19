@@ -1,0 +1,6 @@
+ENV: dict = {
+    "bridge_ip_address": "",
+    "username": "",
+}
+GROUPS: dict = {"": ""}
+ITERS: int = 0
